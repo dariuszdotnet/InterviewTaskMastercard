@@ -2,6 +2,32 @@
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
+string kingsSourceUrl = "https://gist.githubusercontent.com/christianpanton/10d65ccef9f29de3acd49d97ed423736/raw/b09563bc0c4b318132c7a738e679d4f984ef0048/kings";
+
+try
+{
+    var data = new KingsDataProvider();
+    var kings = await data.GetKingsAsync(kingsSourceUrl);
+    data.ValidateKings(kings);
+
+    var logic = new KingsLogic(kings);
+    logic.KingsCount();
+    Console.WriteLine();
+    logic.LongestRulingMonarch();
+    Console.WriteLine();
+    logic.LongestRulingHouse();
+    Console.WriteLine();
+    logic.MostUsedFirstName();
+    Console.WriteLine();
+
+    Console.WriteLine("Press ENTER to exit.");
+    Console.ReadLine();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"An error was caught by global handler. Message: {ex.Message}");
+}
+
 /// <summary>
 /// Type representing a King.
 /// </summary>
