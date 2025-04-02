@@ -61,3 +61,50 @@ public readonly record struct King(
         return parts.Length > 0 ? parts.First() : string.Empty;
     }
 }
+
+/// <summary>
+/// Service responsible for fetching, deserialization and validation of data related to the Kings.
+/// </summary>
+public class KingsDataProvider
+{
+    /// Fetches and deserializes data related to kings, from the external source.
+    /// </summary>
+    /// <param name="url">HTTP address pointing to the source of the data related to kings.</param>
+    /// <returns><see cref="IEnumerable{King}"/> collection containing elements representing kings.</returns>
+    public async Task<IEnumerable<King>> GetKingsAsync(string url)
+    {
+        using HttpClient client = new();
+        var fetchedData = await client.GetStringAsync(url);
+        var kings = JsonSerializer.Deserialize<IEnumerable<King>>(fetchedData);
+        return kings == null ? new List<King>() : kings;
+    }
+
+    /// <summary>
+    /// Validates data related to kings for basic correctness.
+    /// </summary>
+    /// <param name="kings"><see cref="IEnumerable{King}"/> collection containing elements representing kings.</param>
+    /// <exception cref="ArgumentNullException">In case collection is null.</exception>
+    /// <exception cref="ArgumentException">In case there is at least one wrong element in collection.</exception>
+    public void ValidateKings(IEnumerable<King> kings)
+    {
+        if (kings == null)
+            throw new ArgumentNullException("Failed to fetch kings data. Empty kings collection.");
+
+        ValidateAssumption(kings, (IEnumerable<King> x) => x.Where(k => k.Id < 1), "Invalid IDs");
+        ValidateAssumption(kings, kings => kings.GroupBy(x => x.Id).Where(x => x.Count() > 1).Select(x => x.First()), "Duplicated IDs");
+
+        ValidateAssumption(kings, (IEnumerable<King> x) => x.Where(k => string.IsNullOrWhiteSpace(k.Name) || string.IsNullOrWhiteSpace(k.FirstName)), "Empty name");
+
+        ValidateAssumption(kings, (IEnumerable<King> x) => x.Where(k => string.IsNullOrWhiteSpace(k.House)), "Empty house");
+
+        ValidateAssumption(kings, (IEnumerable<King> x) => x.Where(k => k.StartYear > k.EndYear), "Wrong years");
+        ValidateAssumption(kings, (IEnumerable<King> x) => x.Where(k => k.Duration < 1), "Invalid ruling duration");
+
+        void ValidateAssumption(IEnumerable<King> kings, Func<IEnumerable<King>, IEnumerable<King>> check, string message)
+        {
+            var incorrectKings = check.Invoke(kings);
+            if (incorrectKings.Any())
+                throw new ArgumentException($"Wrong kings data. {message} for IDs: {string.Join(", ", incorrectKings.Select(x => x.Id))}");
+        }
+    }
+}
