@@ -23,6 +23,7 @@
 //     B. King IDs start from 1.
 //     C. The country field may be null. This does not affect the results in the current task, but we could add validation later if needed.
 //     D. Years can be negative (BCE dates), so the only validation criteria is that the ruling period must be positive.
+//     E. Data set does not provide recent change, thus Elizabeth II ruling years are calculated like she would be still ruling.
 
 // BTW: I prefer a one-liner syntax, regardless of line length. However, I want to make it clear that I am happy to align with the team's coding style.
 
