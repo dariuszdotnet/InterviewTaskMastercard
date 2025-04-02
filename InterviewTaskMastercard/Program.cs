@@ -1,4 +1,32 @@
-﻿using System.Text.Json;
+﻿
+// EXPLANATION OF READONLY RECORD STRUCT CHOICE
+// After research, I chose a readonly record struct to represent king objects because:
+//     It is a value type, stored on the stack, making it more performant than a class or record in this case.
+//     It is immutable, which provides memory optimizations, ensures thread safety, and eliminates the need for re-validation.
+// I also considered using a normal struct, but I encountered issues during implementation due to incorrect property initialization during JSON deserialization.
+
+// FURTHER STEPS IF IT WERE PRODUCTION CODE
+// I would encapsulate the question, logic, and answer into a separate object. Similar to how I structured the validation logic — to adhere to the DRY principle.
+// For handling questions, an interface, an abstract class (managing output), and concrete classes for each question would improve extensibility and maintainability.
+// However, the task description explicitly states: "Don't overcomplicate things. Keep your code short."
+// So, I have kept the implementation naive and simple for now.
+// For the sake of simplicity, I also skipped some of my typical coding style parts, including:
+//     Dependency injection
+//     Unit testing
+//     Logging
+//     External configuration (e.g., here the URL is hardcoded)
+
+// ASSUMPTIONS
+// Since a detailed specification was not provided, I made the following assumptions:
+//     A.The provided years are inclusive, meaning the ruling duration is calculated as EndYear - StartYear + 1.
+//         Example: A ruling duration from 1001 to 1003 counts as 3 years.
+//     B. King IDs start from 1.
+//     C. The country field may be null. This does not affect the results in the current task, but we could add validation later if needed.
+//     D. Years can be negative (BCE dates), so the only validation criteria is that the ruling period must be positive.
+
+// BTW: I prefer a one-liner syntax, regardless of line length. However, I want to make it clear that I am happy to align with the team's coding style.
+
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
